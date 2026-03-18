@@ -173,4 +173,4 @@ planer-izgradnje/
 
 ## License / Licenca
 
-Copyright © 2025 Planer Izgradnje. Sva prava zadržana. / All rights reserved.
+Copyright © 2026 Planer Izgradnje. Sva prava zadržana. / All rights reserved.
