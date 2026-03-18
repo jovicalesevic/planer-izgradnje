@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://planer-izgradnje-api.onrender.com/api';
 
 async function request(url, options = {}) {
   const response = await fetch(url, {

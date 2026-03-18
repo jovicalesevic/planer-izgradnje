@@ -26,7 +26,7 @@ export default function AIAsistent() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/ai/poruka", {
+      const res = await fetch("https://planer-izgradnje-api.onrender.com/api/ai/poruka", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: azuriraneporuke }),

@@ -83,9 +83,9 @@ Kreirajte `.env` fajl u `server/` direktorijumu (pogledajte [Environment varijab
 node index.js
 ```
 
-The server runs on `http://localhost:5000` by default.
+The server runs on `https://planer-izgradnje-api.onrender.com` by default.
 
-Server se pokreće na `http://localhost:5000` po defaultu.
+Server se pokreće na `https://planer-izgradnje-api.onrender.com` po defaultu.
 
 ### 3. Seed the database / Popunite bazu podataka
 
