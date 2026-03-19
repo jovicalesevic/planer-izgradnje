@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import { UserButton, useUser } from '@clerk/react';
 
 const LINKOVI = [
   { naziv: 'Projekti', putanja: '/' },
@@ -9,6 +10,7 @@ const LINKOVI = [
 
 export default function Navbar() {
   const { pathname } = useLocation();
+  const { user } = useUser();
 
   return (
     <nav style={{
@@ -61,6 +63,15 @@ export default function Navbar() {
             </Link>
           );
         })}
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        {user && (
+          <span style={{ color: '#d1d5db', fontSize: '14px' }}>
+            {user.firstName || user.username || user.emailAddresses?.[0]?.emailAddress}
+          </span>
+        )}
+        <UserButton afterSignOutUrl="/sign-in" />
       </div>
     </nav>
   );
