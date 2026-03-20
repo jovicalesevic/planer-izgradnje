@@ -1,11 +1,16 @@
 const express = require('express');
+const { getAuth } = require('@clerk/express');
 const Projekat = require('../schemas/Projekat');
 
 const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
-    const projekti = await Projekat.find();
+    const { userId } = getAuth(req);
+    if (!userId) {
+      return res.status(401).json({ error: 'Neautorizovan' });
+    }
+    const projekti = await Projekat.find({ korisnik: userId });
     res.json(projekti);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -14,7 +19,11 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const projekat = await Projekat.create(req.body);
+    const { userId } = getAuth(req);
+    if (!userId) {
+      return res.status(401).json({ error: 'Neautorizovan' });
+    }
+    const projekat = await Projekat.create({ ...req.body, korisnik: userId });
     res.status(201).json(projekat);
   } catch (err) {
     res.status(500).json({ error: err.message });

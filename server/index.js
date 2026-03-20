@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const { clerkMiddleware } = require('@clerk/express');
 const institucijeRouter = require('./routes/institucije');
 const projektiRouter = require('./routes/projekti');
 const checklistRouter = require('./routes/checklist');
@@ -13,6 +14,7 @@ const PORT = 5000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(clerkMiddleware());
 app.use('/api/institucije', institucijeRouter);
 app.use('/api/projekti', projektiRouter);
 app.use('/api/checklist', checklistRouter);

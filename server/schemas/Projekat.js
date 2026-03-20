@@ -3,8 +3,7 @@ const mongoose = require('mongoose');
 const projekatSchema = new mongoose.Schema(
   {
     korisnik: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      type: String,
       required: true,
     },
     naziv: {
