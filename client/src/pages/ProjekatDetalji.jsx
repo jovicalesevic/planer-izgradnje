@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getProjekat, getChecklist, createChecklist, updateDokument } from '../api/index.js';
+import { useApi } from '../api/index.js';
 
 export default function ProjekatDetalji() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { getProjekat, getChecklist, createChecklist, updateDokument } = useApi();
 
   const [projekat, setProjekat] = useState(null);
   const [checklist, setChecklist] = useState(null);

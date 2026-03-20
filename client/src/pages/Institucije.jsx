@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getInstitucije } from '../api/index.js';
+import { useApi } from '../api/index.js';
 
 export default function Institucije() {
   const navigate = useNavigate();
+  const { getInstitucije } = useApi();
   const [institucije, setInstitucije] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

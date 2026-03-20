@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createProjekat } from '../api/index.js';
+import { useApi } from '../api/index.js';
 
 const TIP_OBJEKTA_OPCIJE = [
   { value: 'stambeni', label: 'Stambeni' },
@@ -21,6 +21,7 @@ const VRSTA_RADOVA_OPCIJE = [
 
 export default function NoviProjekat() {
   const navigate = useNavigate();
+  const { createProjekat } = useApi();
   const [formData, setFormData] = useState({
     naziv: '',
     tipObjekta: '',
@@ -57,7 +58,6 @@ export default function NoviProjekat() {
         povrsinaGradjevinem2: formData.povrsinaGradjevinem2 ? Number(formData.povrsinaGradjevinem2) : undefined,
         napomene: formData.napomene || undefined,
       };
-      payload.korisnik = '000000000000000000000001';
       await createProjekat(payload);
       navigate('/');
     } catch (err) {

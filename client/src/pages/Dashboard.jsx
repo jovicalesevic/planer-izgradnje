@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getProjekti } from '../api/index.js';
+import { useApi } from '../api/index.js';
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { getProjekti } = useApi();
   const [projekti, setProjekti] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
