@@ -12,7 +12,9 @@ const app = express();
 const PORT = 5000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: ['https://planer-izgradnje.vercel.app', 'http://localhost:5173'],
+}));
 app.use(express.json());
 app.use(clerkMiddleware());
 app.use('/api/institucije', institucijeRouter);
