@@ -60,10 +60,20 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   try {
-    const projekat = await Projekat.findByIdAndDelete(req.params.id);
+    const { userId } = getAuth(req);
+    if (!userId) {
+      return res.status(401).json({ error: 'Neautorizovan' });
+    }
+
+    const projekat = await Projekat.findById(req.params.id);
     if (!projekat) {
       return res.status(404).json({ error: 'Projekat nije pronađen' });
     }
+    if (projekat.korisnik !== userId) {
+      return res.status(403).json({ error: 'Nemate dozvolu za brisanje ovog projekta' });
+    }
+
+    await projekat.deleteOne();
     res.json({ message: 'Projekat obrisan' });
   } catch (err) {
     res.status(500).json({ error: err.message });

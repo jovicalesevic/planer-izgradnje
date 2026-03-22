@@ -11,7 +11,7 @@ const STATUS_PROGRESS = {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { getProjekti } = useApi();
+  const { getProjekti, deleteProjekat } = useApi();
   const [projekti, setProjekti] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,6 +28,17 @@ export default function Dashboard() {
 
   const getProgress = (status) =>
     STATUS_PROGRESS[status?.toLowerCase()] ?? 0;
+
+  const handleDelete = async (e, id) => {
+    e.stopPropagation();
+    if (!window.confirm('Da li ste sigurni da želite da obrišete projekat?')) return;
+    try {
+      await deleteProjekat(id);
+      setProjekti((prev) => prev.filter((p) => p._id !== id));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   if (loading) {
     return (
@@ -66,7 +77,16 @@ export default function Dashboard() {
                   onClick={() => navigate(`/projekat/${p._id}`)}
                   className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 cursor-pointer hover:shadow-md hover:border-purple-200 transition-all duration-150"
                 >
-                  <div className="font-bold text-gray-900 text-base mb-1">{p.naziv}</div>
+                  <div className="flex items-start justify-between mb-1">
+                    <div className="font-bold text-gray-900 text-base">{p.naziv}</div>
+                    <button
+                      onClick={(e) => handleDelete(e, p._id)}
+                      className="text-red-500 hover:text-red-700 text-sm ml-3 shrink-0 transition-colors duration-150 cursor-pointer"
+                      title="Obriši projekat"
+                    >
+                      Obriši
+                    </button>
+                  </div>
                   <div className="flex flex-wrap gap-x-4 text-xs text-gray-500 mb-3">
                     <span>Tip: <span className="text-gray-700">{formatTip(p.tipObjekta)}</span></span>
                     <span>Vrsta radova: <span className="text-gray-700">{formatVrsta(p.vrstaRadova)}</span></span>
