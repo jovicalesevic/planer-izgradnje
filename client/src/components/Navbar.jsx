@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { UserButton } from '@clerk/react';
+import { UserButton, useUser } from '@clerk/react';
 
 const LINKOVI = [
   { naziv: 'Projekti', putanja: '/' },
@@ -10,6 +10,8 @@ const LINKOVI = [
 
 export default function Navbar() {
   const { pathname } = useLocation();
+  const { user } = useUser();
+  const isAdmin = user?.publicMetadata?.role === 'admin';
 
   return (
     <nav className="bg-gray-900 sticky top-0 z-50 shadow-[0_2px_8px_rgba(0,0,0,0.4)]">
@@ -38,6 +40,18 @@ export default function Navbar() {
             </Link>
           );
         })}
+        {isAdmin && (
+          <Link
+            to="/admin"
+            className={`flex-1 text-center text-sm px-2 py-2 transition-colors duration-150 min-w-[80px] ${
+              pathname === '/admin'
+                ? 'text-red-400 font-semibold border-b-2 border-red-400'
+                : 'text-red-500 hover:text-red-400'
+            }`}
+          >
+            Admin
+          </Link>
+        )}
         </div>
       </div>
     </nav>

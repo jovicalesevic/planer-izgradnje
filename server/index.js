@@ -7,6 +7,7 @@ const institucijeRouter = require('./routes/institucije');
 const projektiRouter = require('./routes/projekti');
 const checklistRouter = require('./routes/checklist');
 const aiRouter = require('./routes/ai');
+const adminRouter = require('./routes/admin');
 
 const app = express();
 const PORT = 5000;
@@ -21,6 +22,7 @@ app.use('/api/institucije', institucijeRouter);
 app.use('/api/projekti', projektiRouter);
 app.use('/api/checklist', checklistRouter);
 app.use('/api/ai', aiRouter);
+app.use('/api/admin', adminRouter);
 
 // MongoDB konekcija
 mongoose

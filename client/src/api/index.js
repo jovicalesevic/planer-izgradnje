@@ -19,7 +19,10 @@ export function useApi() {
       const error = await response.json().catch(() => ({ error: response.statusText }));
       throw new Error(error.error || response.statusText);
     }
-    return response.json();
+    if (response.status === 204) return null;
+    const text = await response.text();
+    if (!text) return null;
+    return JSON.parse(text);
   }
 
   return {
@@ -72,5 +75,18 @@ export function useApi() {
           body: JSON.stringify(data),
         }
       ),
+
+    getAdminInstitucije: () => request(`${API_BASE}/admin/institucije`),
+
+    createAdminInstitucija: (data) =>
+      request(`${API_BASE}/admin/institucije`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+
+    deleteAdminInstitucija: (id) =>
+      request(`${API_BASE}/admin/institucije/${id}`, {
+        method: 'DELETE',
+      }),
   };
 }

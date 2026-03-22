@@ -8,6 +8,7 @@ import ProjekatDetalji from './pages/ProjekatDetalji';
 import Institucije from './pages/Institucije';
 import Kalkulator from './pages/Kalkulator';
 import AIAsistent from './pages/AIAsistent';
+import AdminPanel from './pages/AdminPanel';
 
 function ProtectedRoute({ children }) {
   const { isLoaded, isSignedIn } = useAuth();
@@ -30,6 +31,7 @@ function App() {
           <Route path="/institucije" element={<ProtectedRoute><Institucije /></ProtectedRoute>} />
           <Route path="/kalkulator" element={<ProtectedRoute><Kalkulator /></ProtectedRoute>} />
           <Route path="/ai" element={<ProtectedRoute><AIAsistent /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
           <Route path="/sign-in/*" element={<div style={{ display: 'flex', justifyContent: 'center', padding: '48px 16px' }}><SignIn routing="path" path="/sign-in" afterSignInUrl="/" /></div>} />
           <Route path="/sign-up/*" element={<div style={{ display: 'flex', justifyContent: 'center', padding: '48px 16px' }}><SignUp routing="path" path="/sign-up" afterSignUpUrl="/" /></div>} />
           <Route path="*" element={<Navigate to="/" replace />} />
