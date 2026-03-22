@@ -13,51 +13,23 @@ export default function Navbar() {
   const { user } = useUser();
 
   return (
-    <nav style={{
-      backgroundColor: '#111827',
-      padding: '0 24px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      height: '56px',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
-      position: 'sticky',
-      top: 0,
-      zIndex: 100,
-    }}>
-      <span style={{ color: '#f9fafb', fontWeight: '700', fontSize: '18px', letterSpacing: '0.3px' }}>
+    <nav className="bg-gray-900 sticky top-0 z-50 h-16 px-6 flex items-center justify-between shadow-[0_2px_8px_rgba(0,0,0,0.4)]">
+      <span className="text-white font-bold text-lg tracking-tight">
         Planer Izgradnje
       </span>
 
-      <div style={{ display: 'flex', gap: '4px' }}>
+      <div className="flex gap-1">
         {LINKOVI.map(({ naziv, putanja }) => {
           const aktivan = pathname === putanja;
           return (
             <Link
               key={putanja}
               to={putanja}
-              style={{
-                color: aktivan ? '#60a5fa' : '#d1d5db',
-                textDecoration: 'none',
-                padding: '6px 14px',
-                borderRadius: '6px',
-                fontSize: '14px',
-                fontWeight: aktivan ? '600' : '400',
-                backgroundColor: aktivan ? 'rgba(96,165,250,0.12)' : 'transparent',
-                transition: 'color 0.15s, background-color 0.15s',
-              }}
-              onMouseEnter={(e) => {
-                if (!aktivan) {
-                  e.currentTarget.style.color = '#f9fafb';
-                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.07)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!aktivan) {
-                  e.currentTarget.style.color = '#d1d5db';
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }
-              }}
+              className={`px-3.5 py-1.5 rounded-md text-sm transition-colors duration-150 ${
+                aktivan
+                  ? 'text-purple-400 font-semibold bg-purple-400/10'
+                  : 'text-gray-300 font-normal hover:text-white hover:bg-white/[0.07]'
+              }`}
             >
               {naziv}
             </Link>
@@ -65,9 +37,9 @@ export default function Navbar() {
         })}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div className="flex items-center gap-2.5">
         {user && (
-          <span style={{ color: '#d1d5db', fontSize: '14px' }}>
+          <span className="text-gray-300 text-sm">
             {user.firstName || user.username || user.emailAddresses?.[0]?.emailAddress}
           </span>
         )}

@@ -26,6 +26,9 @@ const VRSTA_RADOVA_OPCIJE = [
   { value: 'promena_namene', label: 'Promena namene' },
 ];
 
+const inputClass =
+  'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white';
+
 export default function Kalkulator() {
   const navigate = useNavigate();
   const [povrsinaGradjevinem2, setPovrsinaGradjevinem2] = useState(100);
@@ -42,87 +45,91 @@ export default function Kalkulator() {
   }, [povrsinaGradjevinem2]);
 
   return (
-    <div style={{ padding: 20, maxWidth: 600, margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <h1 style={{ margin: 0, fontSize: 24 }}>Kalkulator troškova</h1>
-        <button onClick={() => navigate('/')} style={{ padding: '8px 16px', cursor: 'pointer' }}>
-          Nazad
-        </button>
-      </div>
-
-      <form style={{ marginBottom: 24 }}>
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', marginBottom: 4, fontSize: 14, fontWeight: 500 }}>
-            Površina građevine (m²)
-          </label>
-          <input
-            type="number"
-            min={1}
-            value={povrsinaGradjevinem2}
-            onChange={(e) => setPovrsinaGradjevinem2(Number(e.target.value) || 0)}
-            style={{ padding: '8px 12px', fontSize: 14, width: '100%', maxWidth: 200, boxSizing: 'border-box' }}
-          />
-        </div>
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', marginBottom: 4, fontSize: 14, fontWeight: 500 }}>
-            Tip objekta
-          </label>
-          <select
-            value={tipObjekta}
-            onChange={(e) => setTipObjekta(e.target.value)}
-            style={{ padding: '8px 12px', fontSize: 14, width: '100%', maxWidth: 200 }}
+    <div className="bg-gray-50 min-h-screen">
+      <div className="max-w-3xl mx-auto p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-semibold text-gray-900">Kalkulator troškova</h1>
+          <button
+            onClick={() => navigate('/')}
+            className="border border-gray-200 text-gray-600 hover:bg-gray-100 px-4 py-2 rounded-lg text-sm transition-colors duration-150 cursor-pointer"
           >
-            {TIP_OBJEKTA_OPCIJE.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
+            ← Nazad
+          </button>
         </div>
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', marginBottom: 4, fontSize: 14, fontWeight: 500 }}>
-            Vrsta radova
-          </label>
-          <select
-            value={vrstaRadova}
-            onChange={(e) => setVrstaRadova(e.target.value)}
-            style={{ padding: '8px 12px', fontSize: 14, width: '100%', maxWidth: 200 }}
-          >
-            {VRSTA_RADOVA_OPCIJE.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
+
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+          <form>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">Površina građevine (m²)</label>
+                <input
+                  type="number"
+                  min={1}
+                  value={povrsinaGradjevinem2}
+                  onChange={(e) => setPovrsinaGradjevinem2(Number(e.target.value) || 0)}
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">Tip objekta</label>
+                <select
+                  value={tipObjekta}
+                  onChange={(e) => setTipObjekta(e.target.value)}
+                  className={inputClass}
+                >
+                  {TIP_OBJEKTA_OPCIJE.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">Vrsta radova</label>
+                <select
+                  value={vrstaRadova}
+                  onChange={(e) => setVrstaRadova(e.target.value)}
+                  className={inputClass}
+                >
+                  {VRSTA_RADOVA_OPCIJE.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </form>
         </div>
-      </form>
 
-      <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16 }}>
-        <thead>
-          <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
-            <th style={{ textAlign: 'left', padding: '12px 8px', fontSize: 14 }}>Stavka</th>
-            <th style={{ textAlign: 'right', padding: '12px 8px', fontSize: 14 }}>Iznos (EUR)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {stavke.map((st) => (
-            <tr key={st.naziv} style={{ borderBottom: '1px solid #e5e7eb' }}>
-              <td style={{ padding: '12px 8px', fontSize: 14 }}>{st.naziv}</td>
-              <td style={{ padding: '12px 8px', fontSize: 14, textAlign: 'right' }}>
-                {st.iznosEur.toLocaleString('sr-RS', { minimumFractionDigits: 2 })}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm mb-6 overflow-hidden">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Stavka</th>
+                <th className="text-right px-4 py-3 text-sm font-medium text-gray-600">Iznos (EUR)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stavke.map((st) => (
+                <tr key={st.naziv} className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
+                  <td className="px-4 py-3 text-sm text-gray-800">{st.naziv}</td>
+                  <td className="px-4 py-3 text-sm text-gray-800 text-right tabular-nums">
+                    {st.iznosEur.toLocaleString('sr-RS', { minimumFractionDigits: 2 })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-      <div style={{ padding: '12px 8px', fontSize: 16, fontWeight: 600, borderTop: '2px solid #e5e7eb' }}>
-        Ukupno: {ukupno.toLocaleString('sr-RS', { minimumFractionDigits: 2 })} EUR
+        <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 flex items-center justify-between mb-6">
+          <span className="text-purple-700 font-semibold text-xl">Ukupno</span>
+          <span className="text-purple-700 font-semibold text-xl tabular-nums">
+            {ukupno.toLocaleString('sr-RS', { minimumFractionDigits: 2 })} EUR
+          </span>
+        </div>
+
+        <p className="text-xs text-gray-400">
+          Napomena: Iznosi su indikativni i mogu varirati u zavisnosti od opštine, tipa objekta i drugih faktora.
+        </p>
       </div>
-
-      <p style={{ marginTop: 24, fontSize: 13, color: '#6b7280' }}>
-        Napomena: Iznosi su indikativni i mogu varirati u zavisnosti od opštine, tipa objekta i drugih faktora.
-      </p>
     </div>
   );
 }

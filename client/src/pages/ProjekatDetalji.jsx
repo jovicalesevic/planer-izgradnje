@@ -2,6 +2,21 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApi } from '../api/index.js';
 
+const STATUS_BADGE = {
+  aktivna:    'bg-purple-100 text-purple-700',
+  zavrsena:   'bg-green-100 text-green-700',
+  zakljucana: 'bg-gray-100 text-gray-500',
+};
+
+function StatusBadge({ status }) {
+  const klasa = STATUS_BADGE[status?.toLowerCase()] ?? 'bg-gray-100 text-gray-500';
+  return (
+    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${klasa}`}>
+      {status || '—'}
+    </span>
+  );
+}
+
 export default function ProjekatDetalji() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -67,18 +82,17 @@ export default function ProjekatDetalji() {
   };
 
   if (loading) {
-    return (
-      <div style={{ padding: 20 }}>
-        <p style={{ margin: 0 }}>Učitavanje...</p>
-      </div>
-    );
+    return <div className="p-6 text-sm text-gray-500">Učitavanje...</div>;
   }
 
   if (error) {
     return (
-      <div style={{ padding: 20 }}>
-        <p style={{ color: 'red', margin: 0 }}>{error}</p>
-        <button onClick={() => navigate('/')} style={{ marginTop: 10, padding: '8px 16px' }}>
+      <div className="p-6">
+        <p className="text-red-600 text-sm mb-3">{error}</p>
+        <button
+          onClick={() => navigate('/')}
+          className="border border-gray-200 text-gray-600 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm transition-colors duration-150 cursor-pointer"
+        >
           Nazad
         </button>
       </div>
@@ -86,84 +100,89 @@ export default function ProjekatDetalji() {
   }
 
   return (
-    <div style={{ padding: 20, maxWidth: 600 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h2 style={{ margin: 0 }}>{projekat?.naziv || 'Projekat'}</h2>
-        <button onClick={() => navigate('/')} style={{ padding: '8px 16px', cursor: 'pointer' }}>
-          Nazad
-        </button>
-      </div>
-
-      {!checklist ? (
-        <div>
-          <p style={{ marginBottom: 12 }}>Checklist za ovaj projekat ne postoji.</p>
+    <div className="bg-gray-50 min-h-screen">
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-semibold text-gray-900">{projekat?.naziv || 'Projekat'}</h1>
           <button
-            onClick={handleKreirajChecklist}
-            style={{ padding: '10px 20px', cursor: 'pointer', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: 4 }}
+            onClick={() => navigate('/')}
+            className="border border-gray-200 text-gray-600 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm transition-colors duration-150 cursor-pointer"
           >
-            Kreiraj checklist
+            ← Nazad
           </button>
         </div>
-      ) : (
-        <div>
-          <h3 style={{ margin: '0 0 12px 0' }}>Faze</h3>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {(checklist.faze || []).map((faza) => (
-              <li key={faza._id} style={{ marginBottom: 8, border: '1px solid #ddd', borderRadius: 4, overflow: 'hidden' }}>
-                <div
-                  onClick={() => toggleFaza(faza._id)}
-                  style={{
-                    padding: '12px 16px',
-                    cursor: 'pointer',
-                    backgroundColor: expandedFazaId === faza._id ? '#f0f0f0' : '#fff',
-                  }}
-                >
-                  <span style={{ fontWeight: 600 }}>{faza.naziv || `Faza ${faza.brojFaze}`}</span>
-                  <span style={{ marginLeft: 8, color: '#666', fontSize: 14 }}>
-                    ({faza.status || '—'})
-                  </span>
-                </div>
-                {expandedFazaId === faza._id && (
-                  <div style={{ padding: '12px 16px', backgroundColor: '#fafafa', borderTop: '1px solid #eee' }}>
-                    <h4 style={{ margin: '0 0 8px 0', fontSize: 14 }}>Dokumenti</h4>
-                    <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                      {(faza.dokumenti || []).map((dok) => (
-                        <li
-                          key={dok._id}
-                          style={{
-                            padding: '8px 0',
-                            borderBottom: '1px solid #eee',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 8,
-                          }}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={dok.status === 'zavrseno'}
-                            onChange={() => handleCheckboxChange(faza._id, dok._id, dok)}
-                            style={{ cursor: 'pointer' }}
-                          />
-                          <span style={{ textDecoration: dok.status === 'zavrseno' ? 'line-through' : 'none', flex: 1 }}>
-                            {dok.naziv || 'Bez naziva'}
+
+        {!checklist ? (
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <p className="text-gray-600 text-sm mb-4">Checklist za ovaj projekat ne postoji.</p>
+            <button
+              onClick={handleKreirajChecklist}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-150 cursor-pointer"
+            >
+              Kreiraj checklist
+            </button>
+          </div>
+        ) : (
+          <div>
+            <h2 className="text-base font-medium text-gray-700 mb-3">Faze</h2>
+
+            {(!checklist.faze || checklist.faze.length === 0) ? (
+              <p className="text-gray-400 text-sm">Nema faza u checklistu.</p>
+            ) : (
+              <ul className="space-y-3">
+                {checklist.faze.map((faza) => {
+                  const otvoren = expandedFazaId === faza._id;
+                  return (
+                    <li key={faza._id} className="bg-white rounded-xl border border-gray-200 shadow-sm mb-3 overflow-hidden">
+                      <div
+                        onClick={() => toggleFaza(faza._id)}
+                        className={`flex items-center justify-between p-4 cursor-pointer transition-colors duration-150 ${otvoren ? 'bg-gray-50' : 'hover:bg-gray-50'}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="font-medium text-gray-900">
+                            {faza.naziv || `Faza ${faza.brojFaze}`}
                           </span>
-                          <span style={{ color: '#666', fontSize: 13 }}>{dok.status || '—'}</span>
-                        </li>
-                      ))}
-                      {(!faza.dokumenti || faza.dokumenti.length === 0) && (
-                        <li style={{ color: '#999', padding: 8 }}>Nema dokumenata</li>
+                          <StatusBadge status={faza.status} />
+                        </div>
+                        <span className="text-gray-400 text-sm">{otvoren ? '▲' : '▼'}</span>
+                      </div>
+
+                      {otvoren && (
+                        <div className="border-t border-gray-100 px-4 py-3">
+                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Dokumenti</p>
+                          {(!faza.dokumenti || faza.dokumenti.length === 0) ? (
+                            <p className="text-gray-400 text-sm py-2">Nema dokumenata</p>
+                          ) : (
+                            <ul className="divide-y divide-gray-100">
+                              {faza.dokumenti.map((dok) => {
+                                const zavrsen = dok.status === 'zavrseno';
+                                return (
+                                  <li key={dok._id} className="flex items-center gap-3 py-2.5">
+                                    <input
+                                      type="checkbox"
+                                      checked={zavrsen}
+                                      onChange={() => handleCheckboxChange(faza._id, dok._id, dok)}
+                                      className="accent-purple-600 w-4 h-4 cursor-pointer shrink-0"
+                                    />
+                                    <span className={`flex-1 text-sm ${zavrsen ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+                                      {dok.naziv || 'Bez naziva'}
+                                    </span>
+                                    <span className="text-xs text-gray-400">{dok.status || '—'}</span>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          )}
+                        </div>
                       )}
-                    </ul>
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
-          {(!checklist.faze || checklist.faze.length === 0) && (
-            <p style={{ color: '#999', margin: 12 }}>Nema faza u checklistu.</p>
-          )}
-        </div>
-      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

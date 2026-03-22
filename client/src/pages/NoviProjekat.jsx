@@ -19,6 +19,10 @@ const VRSTA_RADOVA_OPCIJE = [
   { value: 'promena_namene', label: 'Promena namene' },
 ];
 
+const inputClass =
+  'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white';
+const labelClass = 'block text-sm text-gray-600 mb-1';
+
 export default function NoviProjekat() {
   const navigate = useNavigate();
   const { createProjekat } = useApi();
@@ -67,133 +71,117 @@ export default function NoviProjekat() {
     }
   };
 
-  const inputStyle = {
-    width: '100%',
-    padding: 10,
-    fontSize: 14,
-    border: '1px solid #d1d5db',
-    borderRadius: 6,
-    marginBottom: 12,
-  };
-  const labelStyle = { display: 'block', marginBottom: 4, fontSize: 14, fontWeight: 500 };
-
   return (
-    <div style={{ padding: 24, maxWidth: 500, margin: '0 auto' }}>
-      <h1 style={{ marginBottom: 24, fontSize: 24 }}>Novi projekat</h1>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle} htmlFor="naziv">Naziv *</label>
-          <input
-            id="naziv"
-            name="naziv"
-            type="text"
-            value={formData.naziv}
-            onChange={handleChange}
-            required
-            style={inputStyle}
-          />
-        </div>
-        <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle} htmlFor="tipObjekta">Tip objekta</label>
-          <select
-            id="tipObjekta"
-            name="tipObjekta"
-            value={formData.tipObjekta}
-            onChange={handleChange}
-            style={inputStyle}
-          >
-            <option value="">— Izaberi —</option>
-            {TIP_OBJEKTA_OPCIJE.map((o) => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
-        </div>
-        <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle} htmlFor="vrstaRadova">Vrsta radova</label>
-          <select
-            id="vrstaRadova"
-            name="vrstaRadova"
-            value={formData.vrstaRadova}
-            onChange={handleChange}
-            style={inputStyle}
-          >
-            <option value="">— Izaberi —</option>
-            {VRSTA_RADOVA_OPCIJE.map((o) => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
-        </div>
-        <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle} htmlFor="opstina">Opština</label>
-          <input
-            id="opstina"
-            name="lokacija.opstina"
-            type="text"
-            value={formData.lokacija.opstina}
-            onChange={handleChange}
-            style={inputStyle}
-          />
-        </div>
-        <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle} htmlFor="povrsinaGradjevinem2">Površina građevine (m²)</label>
-          <input
-            id="povrsinaGradjevinem2"
-            name="povrsinaGradjevinem2"
-            type="number"
-            min="0"
-            step="0.01"
-            value={formData.povrsinaGradjevinem2}
-            onChange={handleChange}
-            style={inputStyle}
-          />
-        </div>
-        <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle} htmlFor="napomene">Napomene</label>
-          <textarea
-            id="napomene"
-            name="napomene"
-            value={formData.napomene}
-            onChange={handleChange}
-            rows={4}
-            style={{ ...inputStyle, resize: 'vertical' }}
-          />
-        </div>
-        {error && (
-          <div style={{ color: '#c00', marginBottom: 16, fontSize: 14 }}>{error}</div>
-        )}
-        <div style={{ display: 'flex', gap: 12 }}>
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              padding: '10px 20px',
-              fontSize: 14,
-              backgroundColor: '#2563eb',
-              color: 'white',
-              border: 'none',
-              borderRadius: 6,
-              cursor: loading ? 'not-allowed' : 'pointer',
-            }}
-          >
-            {loading ? 'Čuvanje...' : 'Sačuvaj'}
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate('/')}
-            style={{
-              padding: '10px 20px',
-              fontSize: 14,
-              backgroundColor: '#e5e7eb',
-              color: '#374151',
-              border: 'none',
-              borderRadius: 6,
-              cursor: 'pointer',
-            }}
-          >
-            Otkaži
-          </button>
-        </div>
-      </form>
+    <div className="bg-gray-50 min-h-screen">
+      <div className="max-w-2xl mx-auto mt-8 p-6 bg-white rounded-xl shadow-sm border border-gray-200">
+        <h1 className="text-xl font-semibold text-gray-900 mb-6">Novi projekat</h1>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className={labelClass} htmlFor="naziv">Naziv *</label>
+            <input
+              id="naziv"
+              name="naziv"
+              type="text"
+              value={formData.naziv}
+              onChange={handleChange}
+              required
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label className={labelClass} htmlFor="tipObjekta">Tip objekta</label>
+            <select
+              id="tipObjekta"
+              name="tipObjekta"
+              value={formData.tipObjekta}
+              onChange={handleChange}
+              className={inputClass}
+            >
+              <option value="">— Izaberi —</option>
+              {TIP_OBJEKTA_OPCIJE.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className={labelClass} htmlFor="vrstaRadova">Vrsta radova</label>
+            <select
+              id="vrstaRadova"
+              name="vrstaRadova"
+              value={formData.vrstaRadova}
+              onChange={handleChange}
+              className={inputClass}
+            >
+              <option value="">— Izaberi —</option>
+              {VRSTA_RADOVA_OPCIJE.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className={labelClass} htmlFor="opstina">Opština</label>
+            <input
+              id="opstina"
+              name="lokacija.opstina"
+              type="text"
+              value={formData.lokacija.opstina}
+              onChange={handleChange}
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label className={labelClass} htmlFor="povrsinaGradjevinem2">Površina građevine (m²)</label>
+            <input
+              id="povrsinaGradjevinem2"
+              name="povrsinaGradjevinem2"
+              type="number"
+              min="0"
+              step="0.01"
+              value={formData.povrsinaGradjevinem2}
+              onChange={handleChange}
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label className={labelClass} htmlFor="napomene">Napomene</label>
+            <textarea
+              id="napomene"
+              name="napomene"
+              value={formData.napomene}
+              onChange={handleChange}
+              rows={4}
+              className={`${inputClass} resize-vertical`}
+            />
+          </div>
+
+          {error && (
+            <p className="text-red-600 text-sm">{error}</p>
+          )}
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-150 cursor-pointer"
+            >
+              {loading ? 'Čuvanje...' : 'Sačuvaj'}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="border border-gray-200 text-gray-600 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-150 cursor-pointer"
+            >
+              Otkaži
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
