@@ -48,6 +48,10 @@ export function useApi() {
 
     getChecklist: (projekatId) => request(`${API_BASE}/checklist/${projekatId}`),
 
+    /** Vraća { ukupno, zavrseno, procenat } za dokumente u checklisti */
+    getNapredak: (projekatId) =>
+      request(`${API_BASE}/checklist/napredak/${projekatId}`),
+
     createChecklist: (projekatId, faze = []) =>
       request(`${API_BASE}/checklist/${projekatId}`, {
         method: 'POST',

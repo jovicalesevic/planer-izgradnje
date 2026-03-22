@@ -4,6 +4,35 @@ const Checklist = require('../schemas/Checklist');
 
 const router = express.Router();
 
+router.get('/napredak/:projekatId', async (req, res) => {
+  try {
+    const checklist = await Checklist.findOne({
+      projekat: req.params.projekatId,
+    });
+    if (!checklist) {
+      return res.status(404).json({ error: 'Checklist nije pronađen' });
+    }
+
+    let ukupno = 0;
+    let zavrseno = 0;
+    for (const faza of checklist.faze || []) {
+      for (const dokument of faza.dokumenti || []) {
+        ukupno += 1;
+        if (dokument.status === 'zavrseno') {
+          zavrseno += 1;
+        }
+      }
+    }
+
+    const procenat =
+      ukupno === 0 ? 0 : Math.round((zavrseno / ukupno) * 100);
+
+    res.json({ ukupno, zavrseno, procenat });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get('/:projekatId', async (req, res) => {
   try {
     const checklist = await Checklist.findOne({

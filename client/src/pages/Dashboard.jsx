@@ -2,39 +2,52 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../api/index.js';
 
-const STATUS_PROGRESS = {
-  'planiranje': 10,
-  'u toku': 50,
-  'završen': 100,
-  'pauziran': 30,
-};
-
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { getProjekti, deleteProjekat } = useApi();
+  const { getProjekti, getNapredak, deleteProjekat } = useApi();
   const [projekti, setProjekti] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    getProjekti()
-      .then(setProjekti)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    (async () => {
+      try {
+        const list = await getProjekti();
+        if (cancelled) return;
+        const enriched = await Promise.all(
+          list.map(async (p) => {
+            try {
+              const n = await getNapredak(p._id);
+              return { ...p, procenatNapredak: n.procenat };
+            } catch {
+              return { ...p, procenatNapredak: 0 };
+            }
+          })
+        );
+        if (!cancelled) setProjekti(enriched);
+      } catch (err) {
+        if (!cancelled) setError(err.message);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const formatTip = (tip) => tip?.replace(/_/g, ' ') || '—';
   const formatVrsta = (vrsta) => vrsta?.replace(/_/g, ' ') || '—';
-
-  const getProgress = (status) =>
-    STATUS_PROGRESS[status?.toLowerCase()] ?? 0;
 
   const handleDelete = async (e, id) => {
     e.stopPropagation();
     if (!window.confirm('Da li ste sigurni da želite da obrišete projekat?')) return;
     try {
       await deleteProjekat(id);
-      setProjekti((prev) => prev.filter((p) => p._id !== id));
+      setProjekti((prev) => prev.filter((p) => String(p._id) !== String(id)));
     } catch (err) {
       setError(err.message);
     }
@@ -70,7 +83,7 @@ export default function Dashboard() {
         ) : (
           <ul className="space-y-3">
             {projekti.map((p) => {
-              const progress = getProgress(p.status);
+              const progress = p.procenatNapredak ?? 0;
               return (
                 <li
                   key={p._id}
