@@ -1,8 +1,184 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const Checklist = require('../schemas/Checklist');
+const Projekat = require('../schemas/Projekat');
 
 const router = express.Router();
+
+const doc = (naziv) => ({ naziv, status: 'ceka' });
+
+/** Metapodaci za 6 faza (isti redosled za sve šablone) */
+const FAZE_META = [
+  { brojFaze: 1, naziv: 'Priprema i provera parcele', status: 'aktivna' },
+  { brojFaze: 2, naziv: 'Idejno rešenje i lokacijski uslovi', status: 'zakljucana' },
+  { brojFaze: 3, naziv: 'Glavni projekat i građevinska dozvola', status: 'zakljucana' },
+  { brojFaze: 4, naziv: 'Gradnja', status: 'zakljucana' },
+  { brojFaze: 5, naziv: 'Tehnički pregled i upotrebna dozvola', status: 'zakljucana' },
+  { brojFaze: 6, naziv: 'Uknjižba', status: 'zakljucana' },
+];
+
+/**
+ * Nizovi naziva dokumenata po fazama (indeks 0–5 = faza 1–6).
+ * Za održavanje: faze bez dokumenata = prazan niz.
+ */
+const TEMPLATE_DOKUMENTI = {
+  nova_gradnja: [
+    [
+      'List nepokretnosti',
+      'Kopija plana parcele',
+      'Informacija o lokaciji',
+      'Izvod iz planske dokumentacije',
+      'Dokaz o pravu na gradnju',
+    ],
+    [
+      'Idejno rešenje',
+      'Zahtev za lokacijske uslove (CEOP)',
+      'Lokacijski uslovi',
+      'Uslovi komunalnih preduzeća',
+      'Dokaz o uplati taksi',
+    ],
+    [
+      'Glavni arhitektonski projekat',
+      'Projekat konstrukcije (statika)',
+      'Projekat instalacija',
+      'Elaborat geotehničkih istraživanja',
+      'Energetski elaborat',
+      'Zahtev za građevinsku dozvolu (CEOP)',
+      'Rešenje o građevinskoj dozvoli',
+      'Dokaz o uplati doprinosa za uređenje',
+    ],
+    [
+      'Prijava radova (CEOP)',
+      'Ugovor sa izvođačem radova',
+      'Dnevnik građenja',
+      'Atesti za ugrađene materijale',
+      'Izveštaji nadzornog organa',
+    ],
+    [
+      'Zahtev za tehnički pregled (CEOP)',
+      'Projekat izvedenog stanja (as-built)',
+      'Izveštaj komisije tehničkog pregleda',
+      'Dokaz o plaćenim komunalnim priključcima',
+      'Rešenje o upotrebnoj dozvoli',
+    ],
+    [
+      'Elaborat geodetskih radova',
+      'Zahtev za upis u katastar',
+      'Rešenje RGZ o upisu objekta',
+      'Novi list nepokretnosti',
+    ],
+  ],
+
+  rekonstrukcija: [
+    [
+      'List nepokretnosti',
+      'Kopija plana parcele',
+      'Informacija o lokaciji',
+      'Izvod iz planske dokumentacije',
+      'Dokaz o pravu na gradnju',
+      'Rešenje o rušenju',
+    ],
+    [
+      'Idejno rešenje',
+      'Zahtev za lokacijske uslove (CEOP)',
+      'Lokacijski uslovi',
+      'Uslovi komunalnih preduzeća',
+      'Dokaz o uplati taksi',
+    ],
+    [
+      'Glavni arhitektonski projekat',
+      'Projekat konstrukcije (statika)',
+      'Projekat instalacija',
+      'Elaborat geotehničkih istraživanja',
+      'Energetski elaborat',
+      'Zahtev za dozvolu za rekonstrukciju',
+      'Rešenje o građevinskoj dozvoli',
+      'Dokaz o uplati doprinosa za uređenje',
+    ],
+    [
+      'Prijava radova (CEOP)',
+      'Ugovor sa izvođačem radova',
+      'Dnevnik građenja',
+      'Atesti za ugrađene materijale',
+      'Izveštaji nadzornog organa',
+    ],
+    [
+      'Zahtev za tehnički pregled (CEOP)',
+      'Projekat izvedenog stanja (as-built)',
+      'Izveštaj komisije tehničkog pregleda',
+      'Dokaz o plaćenim komunalnim priključcima',
+      'Rešenje o upotrebnoj dozvoli',
+    ],
+    [
+      'Elaborat geodetskih radova',
+      'Zahtev za upis u katastar',
+      'Rešenje RGZ o upisu objekta',
+      'Novi list nepokretnosti',
+    ],
+  ],
+
+  /** Faze 4–6 skraćene (adaptacija — uknjižba nije uvek potpuna) */
+  adaptacija: [
+    [
+      'List nepokretnosti',
+      'Kopija plana parcele',
+      'Informacija o lokaciji',
+      'Izvod iz planske dokumentacije',
+      'Dokaz o pravu na gradnju',
+    ],
+    [
+      'Idejno rešenje',
+      'Zahtev za lokacijske uslove (CEOP)',
+      'Lokacijski uslovi',
+      'Uslovi komunalnih preduzeća',
+      'Dokaz o uplati taksi',
+    ],
+    [
+      'Glavni arhitektonski projekat',
+      'Projekat konstrukcije (statika)',
+      'Projekat instalacija',
+      'Elaborat geotehničkih istraživanja',
+      'Energetski elaborat',
+      'Zahtev za građevinsku dozvolu (CEOP)',
+      'Rešenje o građevinskoj dozvoli',
+      'Dokaz o uplati doprinosa za uređenje',
+    ],
+    ['Prijava radova (CEOP)', 'Ugovor sa izvođačem radova', 'Dnevnik građenja'],
+    ['Zahtev za tehnički pregled (CEOP)', 'Rešenje o upotrebnoj dozvoli'],
+    ['Zahtev za upis u katastar', 'Novi list nepokretnosti'],
+  ],
+
+  /** Samo faze 1, 2 i 4 sa minimalnim dokumentima; ostale prazne */
+  investiciono_odrzavanje: [
+    ['List nepokretnosti', 'Informacija o lokaciji', 'Dokaz o pravu na gradnju'],
+    ['Idejno rešenje', 'Lokacijski uslovi', 'Dokaz o uplati taksi'],
+    [],
+    ['Prijava radova (CEOP)', 'Dnevnik građenja', 'Izveštaji nadzornog organa'],
+    [],
+    [],
+  ],
+
+  tekuce_odrzavanje: [
+    ['List nepokretnosti', 'Informacija o lokaciji'],
+    ['Lokacijski uslovi', 'Dokaz o uplati taksi'],
+    [],
+    ['Prijava radova (CEOP)', 'Ugovor sa izvođačem radova', 'Dnevnik građenja'],
+    [],
+    [],
+  ],
+};
+
+function buildFazeFromDokumentiPoFazama(dokumentiPoFazama) {
+  return FAZE_META.map((meta, i) => ({
+    ...meta,
+    dokumenti: (dokumentiPoFazama[i] || []).map((naziv) => doc(naziv)),
+  }));
+}
+
+function fazeZaVrstuRadova(vrstaRadova) {
+  const kljuc = vrstaRadova && TEMPLATE_DOKUMENTI[vrstaRadova] ? vrstaRadova : 'nova_gradnja';
+  return buildFazeFromDokumentiPoFazama(TEMPLATE_DOKUMENTI[kljuc]);
+}
 
 router.get('/napredak/:projekatId', async (req, res) => {
   try {
@@ -47,90 +223,18 @@ router.get('/:projekatId', async (req, res) => {
   }
 });
 
-const doc = (naziv) => ({ naziv, status: 'ceka' });
-
-const DEFAULT_FAZE = [
-  {
-    brojFaze: 1,
-    naziv: 'Priprema i provera parcele',
-    status: 'aktivna',
-    dokumenti: [
-      doc('List nepokretnosti'),
-      doc('Kopija plana parcele'),
-      doc('Informacija o lokaciji'),
-      doc('Izvod iz planske dokumentacije'),
-      doc('Dokaz o pravu na gradnju'),
-    ],
-  },
-  {
-    brojFaze: 2,
-    naziv: 'Idejno rešenje i lokacijski uslovi',
-    status: 'zakljucana',
-    dokumenti: [
-      doc('Idejno rešenje'),
-      doc('Zahtev za lokacijske uslove (CEOP)'),
-      doc('Lokacijski uslovi'),
-      doc('Uslovi komunalnih preduzeća'),
-      doc('Dokaz o uplati taksi'),
-    ],
-  },
-  {
-    brojFaze: 3,
-    naziv: 'Glavni projekat i građevinska dozvola',
-    status: 'zakljucana',
-    dokumenti: [
-      doc('Glavni arhitektonski projekat'),
-      doc('Projekat konstrukcije (statika)'),
-      doc('Projekat instalacija'),
-      doc('Elaborat geotehničkih istraživanja'),
-      doc('Energetski elaborat'),
-      doc('Zahtev za građevinsku dozvolu (CEOP)'),
-      doc('Rešenje o građevinskoj dozvoli'),
-      doc('Dokaz o uplati doprinosa za uređenje'),
-    ],
-  },
-  {
-    brojFaze: 4,
-    naziv: 'Gradnja',
-    status: 'zakljucana',
-    dokumenti: [
-      doc('Prijava radova (CEOP)'),
-      doc('Ugovor sa izvođačem radova'),
-      doc('Dnevnik građenja'),
-      doc('Atesti za ugrađene materijale'),
-      doc('Izveštaji nadzornog organa'),
-    ],
-  },
-  {
-    brojFaze: 5,
-    naziv: 'Tehnički pregled i upotrebna dozvola',
-    status: 'zakljucana',
-    dokumenti: [
-      doc('Zahtev za tehnički pregled (CEOP)'),
-      doc('Projekat izvedenog stanja (as-built)'),
-      doc('Izveštaj komisije tehničkog pregleda'),
-      doc('Dokaz o plaćenim komunalnim priključcima'),
-      doc('Rešenje o upotrebnoj dozvoli'),
-    ],
-  },
-  {
-    brojFaze: 6,
-    naziv: 'Uknjižba',
-    status: 'zakljucana',
-    dokumenti: [
-      doc('Elaborat geodetskih radova'),
-      doc('Zahtev za upis u katastar'),
-      doc('Rešenje RGZ o upisu objekta'),
-      doc('Novi list nepokretnosti'),
-    ],
-  },
-];
-
 router.post('/:projekatId', async (req, res) => {
   try {
+    const projekat = await Projekat.findById(req.params.projekatId);
+    if (!projekat) {
+      return res.status(404).json({ error: 'Projekat nije pronađen' });
+    }
+
+    const faze = fazeZaVrstuRadova(projekat.vrstaRadova);
+
     const checklist = await Checklist.create({
       projekat: req.params.projekatId,
-      faze: DEFAULT_FAZE,
+      faze,
     });
     res.status(201).json(checklist);
   } catch (err) {
