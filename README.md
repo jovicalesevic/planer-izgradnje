@@ -21,12 +21,12 @@ Pregledajte bazu institucija relevantnih za proces izgradnje u Srbiji (opštine,
 ### 🧮 Cost Calculator / Kalkulator troškova
 Estimate the indicative costs of your construction project based on building area, object type, and type of works. Includes items such as design costs, development contributions, building permit fees, utility connections, and geodetic surveys.
 
-Procijenite indikativne troškove građevinskog projekta na osnovu površine objekta, tipa objekta i vrste radova. Uključuje stavke kao što su troškovi projektovanja, doprinos za uređenje, taksa za građevinsku dozvolu, komunalni priključci i geodetski elaborat.
+Procenite indikativne troškove građevinskog projekta na osnovu površine objekta, tipa objekta i vrste radova. Uključuje stavke kao što su troškovi projektovanja, doprinos za uređenje, taksa za građevinsku dozvolu, komunalni priključci i geodetski elaborat.
 
 ### 🤖 AI Assistant / AI Asistent
 Chat with an AI assistant powered by Anthropic Claude, specialized in answering questions about the construction permitting and building process in Serbia. Get guidance on required documentation, legal obligations, and process steps.
 
-Razgovarajte sa AI asistentom pokrenutim tehnologijom Anthropic Claude, specijalizovanim za odgovaranje na pitanja o procesu ishođenja dozvola i izgradnje u Srbiji. Dobijte smjernice o potrebnoj dokumentaciji, zakonskim obavezama i koracima u procesu.
+Razgovarajte sa AI asistentom pokrenutim tehnologijom Anthropic Claude, specijalizovanim za odgovaranje na pitanja o procesu ishođenja dozvola i izgradnje u Srbiji. Dobijte smernice o potrebnoj dokumentaciji, zakonskim obavezama i koracima u procesu.
 
 ---
 
