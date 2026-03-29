@@ -10,7 +10,8 @@ router.get('/', async (req, res) => {
     });
     res.json(institucije);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Upload greška:', err);
+    res.status(500).json({ error: err.message || String(err), stack: err.stack });
   }
 });
 
@@ -22,7 +23,8 @@ router.get('/:id', async (req, res) => {
     }
     res.json(institucija);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Upload greška:', err);
+    res.status(500).json({ error: err.message || String(err), stack: err.stack });
   }
 });
 

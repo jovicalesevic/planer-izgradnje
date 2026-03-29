@@ -11,7 +11,8 @@ router.get('/institucije', async (req, res) => {
     const institucije = await Institucija.find().sort({ naziv: 1 });
     res.json(institucije);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Upload greška:', err);
+    res.status(500).json({ error: err.message || String(err), stack: err.stack });
   }
 });
 
@@ -20,7 +21,8 @@ router.post('/institucije', async (req, res) => {
     const institucija = await Institucija.create(req.body);
     res.status(201).json(institucija);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Upload greška:', err);
+    res.status(500).json({ error: err.message || String(err), stack: err.stack });
   }
 });
 
@@ -36,7 +38,8 @@ router.put('/institucije/:id', async (req, res) => {
     }
     res.json(institucija);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Upload greška:', err);
+    res.status(500).json({ error: err.message || String(err), stack: err.stack });
   }
 });
 
@@ -48,7 +51,8 @@ router.delete('/institucije/:id', async (req, res) => {
     }
     res.status(204).send();
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Upload greška:', err);
+    res.status(500).json({ error: err.message || String(err), stack: err.stack });
   }
 });
 

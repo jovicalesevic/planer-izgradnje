@@ -2,6 +2,14 @@ import { useAuth } from '@clerk/react';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api';
 
+function errorMessageFromBody(body, fallback) {
+  const e = body?.error;
+  if (typeof e === 'string') return e;
+  if (e && typeof e === 'object' && typeof e.message === 'string') return e.message;
+  if (e && typeof e === 'object') return JSON.stringify(e);
+  return fallback;
+}
+
 export function useApi() {
   const { getToken } = useAuth();
 
@@ -16,8 +24,8 @@ export function useApi() {
       ...options,
     });
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: response.statusText }));
-      throw new Error(error.error || response.statusText);
+      const body = await response.json().catch(() => ({}));
+      throw new Error(errorMessageFromBody(body, response.statusText));
     }
     if (response.status === 204) return null;
     const text = await response.text();
@@ -88,5 +96,33 @@ export function useApi() {
       request(`${API_BASE}/admin/institucije/${id}`, {
         method: 'DELETE',
       }),
+
+    uploadDokument: async (projekatId, fazaId, dokumentId, fajl) => {
+      const token = await getToken();
+      const formData = new FormData();
+      formData.append('fajl', fajl);
+
+      const headers = {};
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const response = await fetch(
+        `${API_BASE}/upload/${projekatId}/faza/${fazaId}/dokument/${dokumentId}`,
+        {
+          method: 'POST',
+          body: formData,
+          headers,
+        }
+      );
+
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(errorMessageFromBody(body, response.statusText));
+      }
+      const text = await response.text();
+      if (!text) return null;
+      return JSON.parse(text);
+    },
   };
 }

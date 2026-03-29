@@ -205,7 +205,8 @@ router.get('/napredak/:projekatId', async (req, res) => {
 
     res.json({ ukupno, zavrseno, procenat });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Upload greška:', err);
+    res.status(500).json({ error: err.message || String(err), stack: err.stack });
   }
 });
 
@@ -219,7 +220,8 @@ router.get('/:projekatId', async (req, res) => {
     }
     res.json(checklist);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Upload greška:', err);
+    res.status(500).json({ error: err.message || String(err), stack: err.stack });
   }
 });
 
@@ -238,10 +240,11 @@ router.post('/:projekatId', async (req, res) => {
     });
     res.status(201).json(checklist);
   } catch (err) {
+    console.error('Upload greška:', err);
     if (err.code === 11000) {
       return res.status(400).json({ error: 'Checklist za ovaj projekat već postoji' });
     }
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message || String(err), stack: err.stack });
   }
 });
 
@@ -255,7 +258,8 @@ router.delete('/:projekatId', async (req, res) => {
     }
     res.status(204).send();
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Upload greška:', err);
+    res.status(500).json({ error: err.message || String(err), stack: err.stack });
   }
 });
 
@@ -280,7 +284,8 @@ router.put('/:projekatId/faza/:fazaId', async (req, res) => {
     }
     res.json(checklist);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Upload greška:', err);
+    res.status(500).json({ error: err.message || String(err), stack: err.stack });
   }
 });
 
@@ -310,7 +315,8 @@ router.put('/:projekatId/faza/:fazaId/dokument/:dokumentId', async (req, res) =>
     }
     res.json(checklist);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Upload greška:', err);
+    res.status(500).json({ error: err.message || String(err), stack: err.stack });
   }
 });
 

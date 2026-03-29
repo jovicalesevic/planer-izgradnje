@@ -8,6 +8,7 @@ const projektiRouter = require('./routes/projekti');
 const checklistRouter = require('./routes/checklist');
 const aiRouter = require('./routes/ai');
 const adminRouter = require('./routes/admin');
+const uploadRouter = require('./routes/upload');
 
 const app = express();
 const PORT = 5000;
@@ -23,16 +24,26 @@ app.use('/api/projekti', projektiRouter);
 app.use('/api/checklist', checklistRouter);
 app.use('/api/ai', aiRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/upload', uploadRouter);
 
 // MongoDB konekcija
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB povezan'))
-  .catch((err) => console.error('Greška pri povezivanju na MongoDB:', err));
+  .catch((err) => console.log(err?.message ?? err, err?.stack));
 
 // Test ruta
 app.get('/', (req, res) => {
   res.json({ message: 'Server radi!' });
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.message, err.stack);
+  res.status(500).json({ error: err.message, stack: err.stack });
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('UNCAUGHT:', err.message, err.stack);
 });
 
 app.listen(PORT, () => {

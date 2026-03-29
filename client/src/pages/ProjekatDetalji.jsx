@@ -20,13 +20,14 @@ function StatusBadge({ status }) {
 export default function ProjekatDetalji() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getProjekat, getChecklist, createChecklist, updateDokument } = useApi();
+  const { getProjekat, getChecklist, createChecklist, updateDokument, uploadDokument } = useApi();
 
   const [projekat, setProjekat] = useState(null);
   const [checklist, setChecklist] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expandedFazaId, setExpandedFazaId] = useState(null);
+  const [uploadingFor, setUploadingFor] = useState(null);
 
   useEffect(() => {
     if (!id) return;
@@ -78,6 +79,24 @@ export default function ProjekatDetalji() {
       setChecklist(data);
     } catch (err) {
       setError(err.message);
+    }
+  };
+
+  const handlePrilogOdabran = async (e, fazaId, dokumentId) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    const key = `${fazaId}-${dokumentId}`;
+    setUploadingFor(key);
+    setError(null);
+    try {
+      await uploadDokument(id, fazaId, dokumentId, file);
+      const data = await getChecklist(id);
+      setChecklist(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUploadingFor(null);
     }
   };
 
@@ -156,18 +175,54 @@ export default function ProjekatDetalji() {
                             <ul className="divide-y divide-gray-100">
                               {faza.dokumenti.map((dok) => {
                                 const zavrsen = dok.status === 'zavrseno';
+                                const inputId = `prilog-${faza._id}-${dok._id}`;
+                                const uploadKey = `${faza._id}-${dok._id}`;
+                                const uploaduje = uploadingFor === uploadKey;
+                                const prviPrilogUrl = dok.fajlovi?.[0]?.url;
                                 return (
-                                  <li key={dok._id} className="flex items-center gap-3 py-2.5">
+                                  <li key={dok._id} className="flex flex-wrap items-center gap-x-3 gap-y-2 py-2.5">
                                     <input
                                       type="checkbox"
                                       checked={zavrsen}
                                       onChange={() => handleCheckboxChange(faza._id, dok._id, dok)}
                                       className="accent-purple-600 w-4 h-4 cursor-pointer shrink-0"
                                     />
-                                    <span className={`flex-1 text-sm ${zavrsen ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+                                    <span className={`flex-1 min-w-[120px] text-sm ${zavrsen ? 'line-through text-gray-400' : 'text-gray-800'}`}>
                                       {dok.naziv || 'Bez naziva'}
                                     </span>
-                                    <span className="text-xs text-gray-400">{dok.status || '—'}</span>
+                                    <div className="flex items-center gap-2 shrink-0">
+                                      {prviPrilogUrl && (
+                                        <a
+                                          href={prviPrilogUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-sm text-purple-600 hover:text-purple-700 underline font-medium"
+                                          onClick={(e) => e.stopPropagation()}
+                                        >
+                                          Prilog
+                                        </a>
+                                      )}
+                                      <input
+                                        id={inputId}
+                                        type="file"
+                                        accept=".pdf,.jpg,.jpeg,.png,image/*,application/pdf"
+                                        className="hidden"
+                                        disabled={uploaduje}
+                                        onChange={(e) => handlePrilogOdabran(e, faza._id, dok._id)}
+                                      />
+                                      <button
+                                        type="button"
+                                        disabled={uploaduje}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          document.getElementById(inputId)?.click();
+                                        }}
+                                        className="text-sm text-gray-600 hover:text-purple-600 border border-gray-200 hover:border-purple-300 rounded-lg px-2.5 py-1 transition-colors duration-150 disabled:opacity-50 cursor-pointer"
+                                      >
+                                        {uploaduje ? 'Šaljem…' : 'Priloži'}
+                                      </button>
+                                    </div>
+                                    <span className="text-xs text-gray-400 ml-auto sm:ml-0">{dok.status || '—'}</span>
                                   </li>
                                 );
                               })}

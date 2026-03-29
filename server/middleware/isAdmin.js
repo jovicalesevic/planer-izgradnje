@@ -18,6 +18,7 @@ async function isAdmin(req, res, next) {
 
     return res.status(403).json({ error: 'Forbidden' });
   } catch (err) {
+    console.error('Upload greška:', err);
     next(err);
   }
 }

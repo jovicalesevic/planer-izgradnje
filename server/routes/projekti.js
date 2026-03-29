@@ -13,7 +13,8 @@ router.get('/', async (req, res) => {
     const projekti = await Projekat.find({ korisnik: userId });
     res.json(projekti);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Upload greška:', err);
+    res.status(500).json({ error: err.message || String(err), stack: err.stack });
   }
 });
 
@@ -26,7 +27,8 @@ router.post('/', async (req, res) => {
     const projekat = await Projekat.create({ ...req.body, korisnik: userId });
     res.status(201).json(projekat);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Upload greška:', err);
+    res.status(500).json({ error: err.message || String(err), stack: err.stack });
   }
 });
 
@@ -38,7 +40,8 @@ router.get('/:id', async (req, res) => {
     }
     res.json(projekat);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Upload greška:', err);
+    res.status(500).json({ error: err.message || String(err), stack: err.stack });
   }
 });
 
@@ -54,7 +57,8 @@ router.put('/:id', async (req, res) => {
     }
     res.json(projekat);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Upload greška:', err);
+    res.status(500).json({ error: err.message || String(err), stack: err.stack });
   }
 });
 
@@ -76,7 +80,8 @@ router.delete('/:id', async (req, res) => {
     await projekat.deleteOne();
     res.json({ message: 'Projekat obrisan' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Upload greška:', err);
+    res.status(500).json({ error: err.message || String(err), stack: err.stack });
   }
 });
 

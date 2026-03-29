@@ -78,6 +78,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error('Greška:', err);
+  console.log(err?.message ?? err, err?.stack);
   process.exit(1);
 });

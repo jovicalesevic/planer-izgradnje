@@ -15,7 +15,8 @@ router.post('/poruka', async (req, res) => {
     });
     res.json({ odgovor: response.content[0].text });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Upload greška:', err);
+    res.status(500).json({ error: err.message || String(err), stack: err.stack });
   }
 });
 
