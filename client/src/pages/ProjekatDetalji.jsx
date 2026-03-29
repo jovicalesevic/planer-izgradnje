@@ -20,7 +20,7 @@ function StatusBadge({ status }) {
 export default function ProjekatDetalji() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getProjekat, getChecklist, createChecklist, updateDokument, uploadDokument } = useApi();
+  const { getProjekat, getChecklist, createChecklist, updateDokument, uploadDokument, deleteFajl } = useApi();
 
   const [projekat, setProjekat] = useState(null);
   const [checklist, setChecklist] = useState(null);
@@ -28,6 +28,7 @@ export default function ProjekatDetalji() {
   const [error, setError] = useState(null);
   const [expandedFazaId, setExpandedFazaId] = useState(null);
   const [uploadingFor, setUploadingFor] = useState(null);
+  const [brisanjeFajlaId, setBrisanjeFajlaId] = useState(null);
 
   useEffect(() => {
     if (!id) return;
@@ -97,6 +98,22 @@ export default function ProjekatDetalji() {
       setError(err.message);
     } finally {
       setUploadingFor(null);
+    }
+  };
+
+  const handleObrisiFajl = async (e, fazaId, dokumentId, fajlId) => {
+    e.stopPropagation();
+    if (!fajlId || !window.confirm('Da li ste sigurni da želite da obrišete ovaj fajl?')) return;
+    setBrisanjeFajlaId(String(fajlId));
+    setError(null);
+    try {
+      await deleteFajl(id, fazaId, dokumentId, fajlId);
+      const data = await getChecklist(id);
+      setChecklist(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBrisanjeFajlaId(null);
     }
   };
 
@@ -178,30 +195,58 @@ export default function ProjekatDetalji() {
                                 const inputId = `prilog-${faza._id}-${dok._id}`;
                                 const uploadKey = `${faza._id}-${dok._id}`;
                                 const uploaduje = uploadingFor === uploadKey;
-                                const prviPrilogUrl = dok.fajlovi?.[0]?.url;
+                                const fajlovi = dok.fajlovi || [];
                                 return (
-                                  <li key={dok._id} className="flex flex-wrap items-center gap-x-3 gap-y-2 py-2.5">
+                                  <li key={dok._id} className="flex flex-wrap items-start gap-x-3 gap-y-2 py-2.5">
                                     <input
                                       type="checkbox"
                                       checked={zavrsen}
                                       onChange={() => handleCheckboxChange(faza._id, dok._id, dok)}
-                                      className="accent-purple-600 w-4 h-4 cursor-pointer shrink-0"
+                                      className="accent-purple-600 w-4 h-4 cursor-pointer shrink-0 mt-0.5"
                                     />
                                     <span className={`flex-1 min-w-[120px] text-sm ${zavrsen ? 'line-through text-gray-400' : 'text-gray-800'}`}>
                                       {dok.naziv || 'Bez naziva'}
                                     </span>
-                                    <div className="flex items-center gap-2 shrink-0">
-                                      {prviPrilogUrl && (
-                                        <a
-                                          href={prviPrilogUrl}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="text-sm text-purple-600 hover:text-purple-700 underline font-medium"
-                                          onClick={(e) => e.stopPropagation()}
-                                        >
-                                          Prilog
-                                        </a>
+                                    <div className="flex flex-col items-end gap-1.5 shrink-0 max-w-[min(100%,14rem)]">
+                                      {fajlovi.length > 0 && (
+                                        <ul className="flex flex-col gap-1 items-end w-full">
+                                          {fajlovi.map((f, idx) => (
+                                            <li
+                                              key={f._id || `${dok._id}-f-${idx}`}
+                                              className="flex items-start justify-end gap-1.5 w-full"
+                                            >
+                                              <div className="min-w-0 flex-1 text-right">
+                                                {f.url ? (
+                                                  <a
+                                                    href={f.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-sm text-purple-600 hover:text-purple-700 underline break-all"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                  >
+                                                    {f.naziv || 'Fajl'}
+                                                  </a>
+                                                ) : (
+                                                  <span className="text-sm text-gray-500">{f.naziv || 'Fajl'}</span>
+                                                )}
+                                              </div>
+                                              {f._id && (
+                                                <button
+                                                  type="button"
+                                                  disabled={brisanjeFajlaId === String(f._id)}
+                                                  onClick={(e) => handleObrisiFajl(e, faza._id, dok._id, f._id)}
+                                                  className="shrink-0 leading-none text-sm font-bold text-red-500 hover:text-red-700 disabled:opacity-50 cursor-pointer px-1"
+                                                  title="Ukloni fajl"
+                                                  aria-label="Obriši fajl"
+                                                >
+                                                  X
+                                                </button>
+                                              )}
+                                            </li>
+                                          ))}
+                                        </ul>
                                       )}
+                                      <div className="flex items-center gap-2">
                                       <input
                                         id={inputId}
                                         type="file"
@@ -221,8 +266,9 @@ export default function ProjekatDetalji() {
                                       >
                                         {uploaduje ? 'Šaljem…' : 'Priloži'}
                                       </button>
+                                      </div>
                                     </div>
-                                    <span className="text-xs text-gray-400 ml-auto sm:ml-0">{dok.status || '—'}</span>
+                                    <span className="text-xs text-gray-400 ml-auto sm:ml-0 self-center">{dok.status || '—'}</span>
                                   </li>
                                 );
                               })}

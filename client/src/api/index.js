@@ -124,5 +124,11 @@ export function useApi() {
       if (!text) return null;
       return JSON.parse(text);
     },
+
+    deleteFajl: (projekatId, fazaId, dokumentId, fajlId) =>
+      request(
+        `${API_BASE}/upload/${projekatId}/faza/${fazaId}/dokument/${dokumentId}/fajl/${fajlId}`,
+        { method: 'DELETE' }
+      ),
   };
 }

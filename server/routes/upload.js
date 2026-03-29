@@ -7,6 +7,76 @@ const Projekat = require('../schemas/Projekat');
 
 const router = express.Router();
 
+router.delete(
+  '/:projekatId/faza/:fazaId/dokument/:dokumentId/fajl/:fajlId',
+  async (req, res) => {
+    try {
+      const { userId } = getAuth(req);
+      if (!userId) {
+        return res.status(401).json({ error: 'Neautorizovan' });
+      }
+
+      const { projekatId, fazaId, dokumentId, fajlId } = req.params;
+
+      if (!mongoose.Types.ObjectId.isValid(fajlId)) {
+        return res.status(400).json({ error: 'Nevažeći ID fajla' });
+      }
+
+      const projekat = await Projekat.findOne({
+        _id: projekatId,
+        korisnik: userId,
+      });
+      if (!projekat) {
+        return res.status(404).json({ error: 'Projekat nije pronađen' });
+      }
+
+      const checklistPre = await Checklist.findOne({ projekat: projekatId });
+      if (!checklistPre) {
+        return res.status(404).json({ error: 'Checklist nije pronađen' });
+      }
+
+      const fazaPre = checklistPre.faze.id(fazaId);
+      if (!fazaPre) {
+        return res.status(404).json({ error: 'Faza nije pronađena' });
+      }
+      const dokumentPre = fazaPre.dokumenti.id(dokumentId);
+      if (!dokumentPre) {
+        return res.status(404).json({ error: 'Dokument nije pronađen' });
+      }
+      if (!dokumentPre.fajlovi.id(fajlId)) {
+        return res.status(404).json({ error: 'Fajl nije pronađen' });
+      }
+
+      const checklist = await Checklist.findOneAndUpdate(
+        { projekat: projekatId },
+        {
+          $pull: {
+            'faze.$[f].dokumenti.$[d].fajlovi': { _id: new mongoose.Types.ObjectId(fajlId) },
+          },
+        },
+        {
+          arrayFilters: [
+            { 'f._id': new mongoose.Types.ObjectId(fazaId) },
+            { 'd._id': new mongoose.Types.ObjectId(dokumentId) },
+          ],
+          new: true,
+        }
+      );
+
+      if (!checklist) {
+        return res.status(404).json({ error: 'Checklist nije pronađen' });
+      }
+
+      const fazaPosle = checklist.faze.id(fazaId);
+      const dokumentPosle = fazaPosle.dokumenti.id(dokumentId);
+      return res.json(dokumentPosle.toJSON ? dokumentPosle.toJSON() : dokumentPosle);
+    } catch (err) {
+      console.error('Upload greška:', err);
+      return res.status(500).json({ error: err.message || String(err), stack: err.stack });
+    }
+  }
+);
+
 router.post(
   '/:projekatId/faza/:fazaId/dokument/:dokumentId',
   async (req, res, next) => {
