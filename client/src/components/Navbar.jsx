@@ -6,6 +6,7 @@ const LINKOVI = [
   { naziv: 'Institucije', putanja: '/institucije' },
   { naziv: 'Kalkulator', putanja: '/kalkulator' },
   { naziv: 'AI Asistent', putanja: '/ai' },
+  { naziv: 'O aplikaciji', putanja: '/o-aplikaciji' },
 ];
 
 export default function Navbar() {
