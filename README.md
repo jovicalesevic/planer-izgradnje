@@ -2,7 +2,7 @@
 
 ---
 
-## Srpski (ekavica)
+## Srpski
 
 ### Opis aplikacije
 
