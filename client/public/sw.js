@@ -1,4 +1,4 @@
-const CACHE_NAME = 'planer-izgradnje-v2';
+const CACHE_NAME = 'planer-izgradnje-v3';
 const urlsToCache = ['/', '/index.html'];
 
 self.addEventListener('install', (event) => {
